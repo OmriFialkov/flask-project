@@ -1,23 +1,33 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Quotes</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <title>Random Quote Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Welcome to My Flask App!</h1>
-    <p>This page has random quotes!</p>
-
-    <div id="quote-container">
-        <blockquote id="quote">Press the button to get a random quote.</blockquote>
-        <cite id="author"></cite>
+    <div class="container">
+        <h1>Welcome to the Random Quote Generator</h1>
+        <div id="quote-box">
+            <p id="quote-content">Click the button below to get a quote!</p>
+            <p id="quote-author"></p>
+        </div>
+        <button id="fetch-quote">Get Quote</button>
     </div>
 
-    <button id="fetch-quote">Get Random Quote</button>
-
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script>
+        document.getElementById('fetch-quote').addEventListener('click', async () => {
+            const response = await fetch('/get-quote');
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('quote-content').textContent = `"${data.content}"`;
+                document.getElementById('quote-author').textContent = `— ${data.author}`;
+            } else {
+                document.getElementById('quote-content').textContent = "Error fetching quote. Please try again.";
+                document.getElementById('quote-author').textContent = "";
+            }
+        });
+    </script>
 </body>
 </html>
