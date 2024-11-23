@@ -1,31 +1,33 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 import requests
-from flask import jsonify
-
+import random
 
 app = Flask(__name__)
-
 
 @app.route("/")
 def home():
     return "Hello, World!!!"
 
-@app.route('/greet/<person>')
-def greet(name):
-    return render_template('greet.html', person=name)
+@app.route("/meme")
+def random_meme():
+    # Make the API request
+    response = requests.get("https://api.imgflip.com/get_memes")
 
+    # Parse the JSON data
+    data = response.json()
 
-@app.route("/nba/stats")
-def get_nba():
-    
-    api_url = "https://api-nba-v1.p.rapidapi.com/players/statistics"
-    
-    response = requests.get(api_url)
-    response.raise_for_status()  # Raise an exception for HTTP errors
-    
-    data=response.json()
+    # Extract the list of memes (if available)
+    memes = data.get('data', {}).get('memes', [])
 
-    return data
+    # Select a random meme or use a placeholder if no memes are found
+    if memes:
+        random_meme = random.choice(memes)['url']
+    else:
+        random_meme = "https://via.placeholder.com/300?text=No+Meme+Found"
+
+    # Render the template with the selected meme
+    return render_template('random_meme.html', meme=random_meme)
+
 
 
 if __name__ == '__main__':
