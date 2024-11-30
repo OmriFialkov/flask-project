@@ -10,6 +10,9 @@ COPY . /app
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install Ping
+RUN apt-get update && apt-get install -y iputils-ping
+
 # Expose the port Flask will run on
 EXPOSE 5000
 

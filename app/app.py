@@ -1,6 +1,12 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
+from pymongo import MongoClient
 
 app = Flask(__name__)
+
+# MongoDB connection (update with your MongoDB host and credentials if needed)
+client = MongoClient("mongodb://192.168.1.32:27017/")  # Replace with your MongoDB connection string
+db = client['my_database']  # Replace with your database name
+collection = db['my_collection']  # Replace with your collection name
 
 # Home route
 @app.route('/')
@@ -16,6 +22,37 @@ def greet(name):
 @app.route('/about')
 def about():
     return "This is a Flask web application with enhanced styling."
+
+# Add data route (POST method)
+@app.route('/add', methods=['POST'])
+def add_data():
+    data = request.json  # Expecting JSON input
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    # Insert data into the MongoDB collection
+    result = collection.insert_one(data)
+    return jsonify({"message": "Data added", "id": str(result.inserted_id)}), 201
+
+# Retrieve all data route (GET method)
+@app.route('/data', methods=['GET'])
+def get_data():
+    # Retrieve all documents from the MongoDB collection
+    data = list(collection.find({}, {"_id": 0}))  # Exclude the `_id` field for cleaner output
+    return jsonify(data), 200
+
+# Retrieve specific data based on a query (GET method)
+@app.route('/find', methods=['GET'])
+def find_data():
+    query = request.args  # Retrieve query parameters
+    if not query:
+        return jsonify({"error": "No query parameters provided"}), 400
+
+    data = list(collection.find(query, {"_id": 0}))  # Exclude the `_id` field
+    if not data:
+        return jsonify({"message": "No matching documents found"}), 404
+
+    return jsonify(data), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
