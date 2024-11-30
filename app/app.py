@@ -4,7 +4,7 @@ from pymongo import MongoClient
 app = Flask(__name__)
 
 # MongoDB connection (update with your MongoDB host and credentials if needed)
-client = MongoClient("mongodb://192.168.1.32:27017/")  # Replace with your MongoDB connection string
+client = MongoClient("mongodb://172.17.0.3:27017/")  # Replace with your MongoDB connection string
 db = client['my_database']  # Replace with your database name
 collection = db['my_collection']  # Replace with your collection name
 
@@ -44,15 +44,16 @@ def get_data():
 # Retrieve specific data based on a query (GET method)
 @app.route('/find', methods=['GET'])
 def find_data():
-    query = request.args  # Retrieve query parameters
-    if not query:
+    query_params = request.args.to_dict()  # Convert query parameters to a dictionary
+    if not query_params:
         return jsonify({"error": "No query parameters provided"}), 400
 
-    data = list(collection.find(query, {"_id": 0}))  # Exclude the `_id` field
-    if not data:
+    # Use MongoDB's case-insensitive search if needed
+    results = list(collection.find(query_params, {"_id": 0}))
+    if not results:
         return jsonify({"message": "No matching documents found"}), 404
 
-    return jsonify(data), 200
+    return jsonify(results), 200
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
