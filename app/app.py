@@ -5,8 +5,8 @@ app = Flask(__name__)
 
 # MongoDB connection (update with your MongoDB host and credentials if needed)
 client = MongoClient("mongodb://172.17.0.3:27017/")  # Replace with your MongoDB connection string
-db = client['my_database']  # Replace with your database name
-collection = db['my_collection']  # Replace with your collection name
+db = client['my_database']  # Replace with your database name.
+collection = db['my_collection']  # Replace with your collection name.
 
 # Home route
 @app.route('/')
